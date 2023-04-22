@@ -13,8 +13,8 @@ resource "azurerm_network_interface" "nic" {
   resource_group_name = var.resource-group-name
 
   dynamic "ip_configuration" {
-    for_each = [ var.ip-address == null ? null : var.ip-address ]
-    
+    for_each = [var.ip-address == null ? null : var.ip-address]
+
     content {
       name                          = "internal"
       subnet_id                     = var.subnet-id
@@ -24,14 +24,16 @@ resource "azurerm_network_interface" "nic" {
   }
 
   dynamic "ip_configuration" {
-    for_each = [ var.ip-address == null ? null : var.ip-address ]
-    
+    for_each = [var.ip-address == null ? null : var.ip-address]
+
     content {
       name                          = "internal"
       subnet_id                     = var.subnet-id
       private_ip_address_allocation = "Dynamic"
     }
   }
+
+  tags = var.global-tags
 }
 
 resource "random_password" "password" {
@@ -64,9 +66,19 @@ resource "azurerm_windows_virtual_machine" "vm" {
 
   secure_boot_enabled = var.support-hvic
   vtpm_enabled        = var.support-hvic
-  
+
   patch_assessment_mode = var.update-management-integration ? "AutomaticByPlatform" : "ImageDefault"
   patch_mode            = var.update-management-integration ? "AutomaticByPlatform" : "Manual"
+
+  tags = var.global-tags
+
+  dynamic "identity" {
+    for_each = [var.disk-encryption == null ? null : var.disk-encryption]
+
+    content {
+      type = "SystemAssigned"
+    }
+  }
 }
 
 resource "azurerm_managed_disk" "disk" {
@@ -79,6 +91,8 @@ resource "azurerm_managed_disk" "disk" {
   tier                 = each.value.tier
   create_option        = "Empty"
   disk_size_gb         = each.value.size-gb
+
+  tags = var.global-tags
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "disk-attachment" {

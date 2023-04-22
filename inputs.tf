@@ -81,3 +81,8 @@ variable "disk-encryption" {
   })
   default = null
 }
+
+variable "global-tags" {
+  type = map(string)
+  default = {}
+}
