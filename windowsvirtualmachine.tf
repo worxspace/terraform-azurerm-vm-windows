@@ -24,7 +24,7 @@ resource "azurerm_network_interface" "nic" {
   }
 
   dynamic "ip_configuration" {
-    for_each = [var.ip-address == null ? null : var.ip-address]
+    for_each = [var.ip-address == null ? 1 : null]
 
     content {
       name                          = "internal"
