@@ -19,6 +19,11 @@ variable "resource-prefixes" {
   default = []
 }
 
+variable "computer-name" {
+  type = string
+  default = null
+}
+
 variable "subnet-id" {
   type = string
 }
@@ -85,4 +90,9 @@ variable "disk-encryption" {
 variable "global-tags" {
   type = map(string)
   default = {}
+}
+
+variable "enable-azuread-login" {
+  type = bool
+  default = true
 }

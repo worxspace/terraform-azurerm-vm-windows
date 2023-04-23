@@ -1,6 +1,6 @@
 resource "azurecaf_name" "name" {
   resource_types = [
-    "azurerm_windows_virtual_machine",
+    "azurerm_linux_virtual_machine",
     "azurerm_network_interface"
   ]
   name     = var.project-name
@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "nic" {
   resource_group_name = var.resource-group-name
 
   dynamic "ip_configuration" {
-    for_each = [var.ip-address == null ? null : var.ip-address]
+    for_each = var.ip-address == null ? [] : [var.ip-address]
 
     content {
       name                          = "internal"
@@ -24,7 +24,7 @@ resource "azurerm_network_interface" "nic" {
   }
 
   dynamic "ip_configuration" {
-    for_each = [var.ip-address == null ? 1 : null]
+    for_each = var.ip-address == null ? [1] : []
 
     content {
       name                          = "internal"
@@ -42,7 +42,8 @@ resource "random_password" "password" {
 }
 
 resource "azurerm_windows_virtual_machine" "vm" {
-  name                = azurecaf_name.name.results.azurerm_windows_virtual_machine
+  name                = azurecaf_name.name.results.azurerm_linux_virtual_machine
+  computer_name       = var.computer-name == null ? azurecaf_name.name.results.azurerm_linux_virtual_machine : var.computer-name
   resource_group_name = var.resource-group-name
   location            = var.location
   size                = var.vm-size
@@ -67,6 +68,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   secure_boot_enabled = var.support-hvic
   vtpm_enabled        = var.support-hvic
 
+  hotpatching_enabled   = false # enable later when image supports
   patch_assessment_mode = var.update-management-integration ? "AutomaticByPlatform" : "ImageDefault"
   patch_mode            = var.update-management-integration ? "AutomaticByPlatform" : "Manual"
 
@@ -102,4 +104,15 @@ resource "azurerm_virtual_machine_data_disk_attachment" "disk-attachment" {
   virtual_machine_id = azurerm_windows_virtual_machine.vm.id
   lun                = "10"
   caching            = "None"
+}
+
+resource "azurerm_virtual_machine_extension" "aadlogin" {
+  count = var.enable-azuread-login ? 1 : 0
+
+  name                       = "AADLoginForWindows"
+  virtual_machine_id         = azurerm_windows_virtual_machine.vm.id
+  publisher                  = "Microsoft.Azure.ActiveDirectory"
+  type                       = "AADLoginForWindows"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
 }
