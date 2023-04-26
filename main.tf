@@ -96,7 +96,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 resource "azurerm_managed_disk" "disk" {
   for_each = var.data-disks == null ? {} : { for disk in var.data-disks : disk.name => disk }
 
-  name                 = "${azurecaf_name.name.results.azurerm_windows_virtual_machine}_${each.key}"
+  name                 = "${azurecaf_name.name.results.azurerm_linux_virtual_machine}_${each.key}"
   location             = var.location
   resource_group_name  = var.resource-group-name
   storage_account_type = each.value.storage-type
