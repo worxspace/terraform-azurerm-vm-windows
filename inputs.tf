@@ -1,15 +1,17 @@
 variable "resource-group-name" {
+  description = "resource group where you want to create the virtual machines"
   type = string
 }
 
 variable "location" {
   type    = string
   default = "switzerlandnorth"
+  description = "value for the location of the virtual machines"
 }
 
 variable "project-name" {
   type        = string
-  description = "this is used as the main part of the resource name"
+  description = "used as the main part of the name of the virtual machine"
 }
 
 variable "resource-prefixes" {
@@ -19,23 +21,34 @@ variable "resource-prefixes" {
   default = []
 }
 
+variable "resource-suffixes" {
+  type        = list(string)
+  description = "these are appended to resource names and usually include the numbers when multiple resource with the same name exist"
+
+  default = []
+}
+
 variable "computer-name" {
   type = string
   default = null
+  description = "value for the computer name of the virtual machine. Use this if the resource name being generated is longer than 15"
 }
 
 variable "subnet-id" {
   type = string
+  description = "value for the subnet resource id where the virtual machine will be deployed"
 }
 
 variable "ip-address" {
   type = string
   default = null
+  description = "value for the ip address of the virtual machine. Use this if you want to assign a specific ip address to the virtual machine"
 }
 
 variable "vm-size" {
   type    = string
   default = "Standard_D2s_V2"
+  description = "value for the size of the virtual machine. Link to the list of available sizes: https://docs.microsoft.com/en-us/azure/virtual-machines/sizes-general"
 }
 
 variable "data-disks" {
@@ -46,36 +59,43 @@ variable "data-disks" {
     size-gb      = number
   }))
   default = null
+  description = "list of data disks to be attached to the virtual machine"
 }
 
 variable "image-sku" {
   type    = string
   default = "2022-datacenter-azure-edition"
+  description = "value for the sku of the image to be used for the virtual machine. Link to the list of available images: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
 }
 
 variable "image-publisher" {
   type    = string
   default = "MicrosoftWindowsServer"
+  description = "value for the publisher of the image to be used for the virtual machine. Link to the list of available images: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
 }
 
 variable "image-offer" {
   type    = string
   default = "WindowsServer"
+  description = "value for the offer of the image to be used for the virtual machine. Link to the list of available images: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
 }
 
 variable "image-version" {
   type    = string
   default = "latest"
+  description = "value for the version of the image to be used for the virtual machine. Link to the list of available images: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
 }
 
 variable "support-hvic" {
   type    = bool
   default = true
+  description = "Determines if secure boot and vTPM are enabled on the virtual machine. This is only available for certain VM sizes. Link to the list of available sizes: https://docs.microsoft.com/en-us/azure/virtual-machines/sizes-general"
 }
 
 variable "update-management-integration" {
   type    = bool
   default = true
+  description = "Determines if the virtual machine should be integrated with Azure Update Management with periodic scanning"
 }
 
 variable "disk-encryption" {
@@ -85,14 +105,17 @@ variable "disk-encryption" {
     key-vault-resource-id    = string
   })
   default = null
+  description = "values used to enable Azure Disk Encryption. These are passed to the vm extension. The encryption url is the url to the encryption key. Make sure that the keyvault allows access for azure vms to connect to it and download the key"
 }
 
 variable "global-tags" {
   type = map(string)
   default = {}
+  description = "tags to be applied to all resources"
 }
 
 variable "enable-azuread-login" {
   type = bool
   default = true
+  description = "value to determine if the virtual machine should be enabled for azure ad login"
 }

@@ -1,3 +1,12 @@
+/**
+ * # tfm-azure-vm-windows
+ *
+ * Creates azure windows virtual machines in a standardised way using the latest recommendations.
+ *
+ * We use azurecaf_name to generate a unique name for the user assigned identity.
+ * so make sure to provide the project-name, prefixes, suffixes as necessary
+ */
+
 resource "azurecaf_name" "name" {
   resource_types = [
     "azurerm_linux_virtual_machine",
@@ -5,6 +14,7 @@ resource "azurecaf_name" "name" {
   ]
   name     = var.project-name
   prefixes = var.resource-prefixes
+  suffixes = var.resource-suffixes
 }
 
 resource "azurerm_network_interface" "nic" {
