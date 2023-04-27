@@ -105,6 +105,12 @@ resource "azurerm_managed_disk" "disk" {
   disk_size_gb         = each.value.size-gb
 
   tags = var.global-tags
+
+  lifecycle {
+    ignore_changes = [
+      encryption_settings
+    ]
+  }
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "disk-attachment" {
