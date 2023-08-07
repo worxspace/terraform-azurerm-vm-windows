@@ -13,3 +13,8 @@ output "admin-password" {
   sensitive = true
   description = "value for the admin password of the virtual machine"
 }
+
+output "network_interface_id" {
+  value = azurerm_network_interface.nic.id
+  description = "value for the network interface id of the virtual machine"
+}
