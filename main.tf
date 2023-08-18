@@ -9,7 +9,7 @@
 
 module "names" {
   source  = "app.terraform.io/worxspace/name/azurecaf"
-  version = "0.0.2"
+  version = "~>0.0.2"
 
   resource_types = [
     "azurerm_linux_virtual_machine",
