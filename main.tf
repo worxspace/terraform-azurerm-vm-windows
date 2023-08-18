@@ -7,7 +7,10 @@
  * so make sure to provide the project-name, prefixes, suffixes as necessary
  */
 
-resource "azurecaf_name" "name" {
+module "names" {
+  source  = "app.terraform.io/worxspace/name/azurecaf"
+  version = "0.0.2"
+
   resource_types = [
     "azurerm_linux_virtual_machine",
     "azurerm_network_interface"
@@ -15,10 +18,12 @@ resource "azurecaf_name" "name" {
   name     = var.project-name
   prefixes = var.resource-prefixes
   suffixes = var.resource-suffixes
+
+  random_length = var.random-resource-suffix-length
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = azurecaf_name.name.results.azurerm_network_interface
+  name                = module.names.results.azurerm_network_interface
   location            = var.location
   resource_group_name = var.resource-group-name
 
@@ -52,8 +57,8 @@ resource "random_password" "password" {
 }
 
 resource "azurerm_windows_virtual_machine" "vm" {
-  name                = azurecaf_name.name.results.azurerm_linux_virtual_machine
-  computer_name       = var.computer-name == null ? azurecaf_name.name.results.azurerm_linux_virtual_machine : var.computer-name
+  name                = module.names.results.azurerm_linux_virtual_machine
+  computer_name       = var.computer-name == null ? module.names.results.azurerm_linux_virtual_machine : var.computer-name
   resource_group_name = var.resource-group-name
   location            = var.location
   size                = var.vm-size
@@ -68,11 +73,17 @@ resource "azurerm_windows_virtual_machine" "vm" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = var.image-publisher
-    offer     = var.image-offer
-    sku       = var.image-sku
-    version   = var.image-version
+  source_image_id = var.source-image-id
+
+  dynamic "source_image_reference" {
+    for_each = var.source-image-id == null ? [1] : []
+
+    content {
+      publisher = var.image-publisher
+      offer     = var.image-offer
+      sku       = var.image-sku
+      version   = var.image-version
+    }
   }
 
   secure_boot_enabled = var.support-hvic
@@ -97,7 +108,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 resource "azurerm_managed_disk" "disk" {
   for_each = var.data-disks == null ? {} : { for disk in var.data-disks : disk.name => disk }
 
-  name                 = "${azurecaf_name.name.results.azurerm_linux_virtual_machine}_${each.key}"
+  name                 = "${module.names.results.azurerm_linux_virtual_machine}_${each.key}"
   location             = var.location
   resource_group_name  = var.resource-group-name
   storage_account_type = each.value.storage-type

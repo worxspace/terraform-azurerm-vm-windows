@@ -28,6 +28,13 @@ variable "resource-suffixes" {
   default = []
 }
 
+variable "random-resource-suffix-length" {
+  type        = number
+  description = "this will add a random string to the end of your resources using a-z and 0-9 upto the number specified"
+
+  default = 0
+}
+
 variable "computer-name" {
   type        = string
   default     = null
@@ -60,6 +67,12 @@ variable "data-disks" {
   }))
   default     = null
   description = "list of data disks to be attached to the virtual machine"
+}
+
+variable "source-image-id" {
+  type        = string
+  default     = null
+  description = "value for the resource id of the image to be used for the virtual machine. Link to the list of available images: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
 }
 
 variable "image-sku" {
