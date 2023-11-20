@@ -88,6 +88,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 
   secure_boot_enabled = var.support-hvic
   vtpm_enabled        = var.support-hvic
+  license_type        = var.license_type
 
   hotpatching_enabled      = false # enable later when image supports
   patch_assessment_mode    = var.update-management-integration ? "AutomaticByPlatform" : "ImageDefault"

@@ -99,6 +99,12 @@ variable "image-version" {
   description = "value for the version of the image to be used for the virtual machine. Link to the list of available images: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
 }
 
+variable "license_type" {
+  type        = string
+  default     = "Windows_Server"
+  description = "value for the license type of the virtual machine. Link to the list of available license types: https://docs.microsoft.com/en-us/azure/virtual-machines/windows/cli-ps-findimage"
+}
+
 variable "support-hvic" {
   type        = bool
   default     = true
