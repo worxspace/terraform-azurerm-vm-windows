@@ -58,6 +58,12 @@ variable "vm-size" {
   description = "value for the size of the virtual machine. Link to the list of available sizes: https://docs.microsoft.com/en-us/azure/virtual-machines/sizes-general"
 }
 
+variable "os-disk-storage-type" {
+  type        = string
+  default     = "Standard_LRS"
+  description = "value for the storage type of the os disk of the virtual machine"
+}
+
 variable "data-disks" {
   type = list(object({
     name         = string

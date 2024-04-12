@@ -70,7 +70,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 
   os_disk {
     caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+    storage_account_type = var.os-disk-storage-type
   }
 
   source_image_id = var.source-image-id
