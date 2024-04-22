@@ -12,18 +12,35 @@ module "names" {
   version = "~>0.0.2"
 
   resource_types = [
-    "azurerm_linux_virtual_machine",
-    "azurerm_network_interface"
+    "azurerm_linux_virtual_machine"
   ]
   name     = var.project-name
   prefixes = var.resource-prefixes
-  suffixes = var.resource-suffixes
+  suffixes = var.machine-index == null ? var.resource-suffixes : concat(var.resource-suffixes, [format("%03d", var.machine-index)])
 
   random_length = var.random-resource-suffix-length
 }
 
+resource "random_integer" "nic-seed" {
+  min = 1
+  max = 50000
+  keepers = {
+    name = module.names.results.azurerm_linux_virtual_machine
+    computer_name = module.names.results.azurerm_linux_virtual_machine
+  }
+  seed = module.names.results.azurerm_linux_virtual_machine
+}
+
+resource "azurecaf_name" "nic" {
+  resource_type = "azurerm_network_interface"
+  prefixes      = var.resource-prefixes
+  suffixes      = var.resource-suffixes
+  random_length = "5"
+  random_seed   = random_integer.nic-seed.result
+}
+
 resource "azurerm_network_interface" "nic" {
-  name                = module.names.results.azurerm_network_interface
+  name                = azurecaf_name.nic.result
   location            = var.location
   resource_group_name = var.resource-group-name
 
@@ -58,7 +75,7 @@ resource "random_password" "password" {
 
 resource "azurerm_windows_virtual_machine" "vm" {
   name                = module.names.results.azurerm_linux_virtual_machine
-  computer_name       = var.computer-name == null ? module.names.results.azurerm_linux_virtual_machine : var.computer-name
+  computer_name       = var.computer-name == null ? replace(module.names.results.azurerm_linux_virtual_machine, "-", "") : var.computer-name
   resource_group_name = var.resource-group-name
   location            = var.location
   size                = var.vm-size
@@ -67,8 +84,10 @@ resource "azurerm_windows_virtual_machine" "vm" {
   network_interface_ids = [
     azurerm_network_interface.nic.id
   ]
+  availability_set_id = var.availability_set_id
 
   os_disk {
+    name                 = azurecaf_name.disk["osdisk"].result
     caching              = "ReadWrite"
     storage_account_type = var.os-disk-storage-type
   }
@@ -106,10 +125,32 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 }
 
+resource "random_integer" "disk-seed" {
+  for_each = { for disk in concat([{ name = "osdisk" }], var.data-disks) : disk.name => disk }
+
+  min = 1
+  max = 50000
+  keepers = {
+    name = each.key
+    computer_name = module.names.results.azurerm_linux_virtual_machine
+  }
+  seed = "${module.names.results.azurerm_linux_virtual_machine}-${each.key}"
+}
+
+resource "azurecaf_name" "disk" {
+  for_each = { for disk in concat([{ name = "osdisk" }], var.data-disks) : disk.name => disk }
+
+  resource_type = "azurerm_managed_disk"
+  prefixes      = var.resource-prefixes
+  suffixes      = var.resource-suffixes
+  random_length = "5"
+  random_seed   = random_integer.disk-seed[each.key].result
+}
+
 resource "azurerm_managed_disk" "disk" {
   for_each = var.data-disks == null ? {} : { for disk in var.data-disks : disk.name => disk }
 
-  name                 = "${module.names.results.azurerm_linux_virtual_machine}_${each.key}"
+  name                 = azurecaf_name.disk[each.key].result
   location             = var.location
   resource_group_name  = var.resource-group-name
   storage_account_type = each.value.storage-type

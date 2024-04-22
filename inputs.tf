@@ -144,3 +144,13 @@ variable "enable-azuread-login" {
   default     = true
   description = "value to determine if the virtual machine should be enabled for azure ad login"
 }
+
+variable "availability_set_id" {
+  type = string
+  default = null
+}
+
+variable machine-index {
+  type = number
+  default = null
+}
