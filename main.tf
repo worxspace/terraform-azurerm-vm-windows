@@ -44,6 +44,8 @@ resource "azurerm_network_interface" "nic" {
   location            = var.location
   resource_group_name = var.resource-group-name
 
+  enable_accelerated_networking = var.enable_accelerated_networking
+
   dynamic "ip_configuration" {
     for_each = var.ip-address == null ? [] : [var.ip-address]
 

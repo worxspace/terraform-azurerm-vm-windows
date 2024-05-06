@@ -163,3 +163,8 @@ variable "plan" {
   })
   default = null
 }
+
+variable "enable_accelerated_networking" {
+  type = bool
+  default = false
+}
