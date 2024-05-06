@@ -136,9 +136,9 @@ resource "azurerm_windows_virtual_machine" "vm" {
     for_each = var.plan != null ? [1] : []
 
     content {
-      name      = azurerm_marketplace_agreement.ma.plan
-      publisher = azurerm_marketplace_agreement.ma.publisher
-      product   = azurerm_marketplace_agreement.ma.offer
+      name      = azurerm_marketplace_agreement.ma[0].plan
+      publisher = azurerm_marketplace_agreement.ma[0].publisher
+      product   = azurerm_marketplace_agreement.ma[0].offer
     }
   }
 }
