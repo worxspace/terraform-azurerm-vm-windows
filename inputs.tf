@@ -146,11 +146,20 @@ variable "enable-azuread-login" {
 }
 
 variable "availability_set_id" {
-  type = string
+  type    = string
   default = null
 }
 
-variable machine-index {
-  type = number
+variable "machine-index" {
+  type    = number
+  default = null
+}
+
+variable "plan" {
+  type = object({
+    name      = string
+    publisher = string
+    product   = string
+  })
   default = null
 }

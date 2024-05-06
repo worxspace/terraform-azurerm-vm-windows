@@ -25,7 +25,7 @@ resource "random_integer" "nic-seed" {
   min = 1
   max = 50000
   keepers = {
-    name = module.names.results.azurerm_linux_virtual_machine
+    name          = module.names.results.azurerm_linux_virtual_machine
     computer_name = module.names.results.azurerm_linux_virtual_machine
   }
   seed = module.names.results.azurerm_linux_virtual_machine
@@ -71,6 +71,14 @@ resource "azurerm_network_interface" "nic" {
 resource "random_password" "password" {
   length  = 24
   special = true
+}
+
+resource "azurerm_marketplace_agreement" "ma" {
+  count = var.plan != null ? 1 : 0
+
+  publisher = var.plan.publisher
+  offer     = var.plan.product
+  plan      = var.plan.name
 }
 
 resource "azurerm_windows_virtual_machine" "vm" {
@@ -123,6 +131,16 @@ resource "azurerm_windows_virtual_machine" "vm" {
       type = "SystemAssigned"
     }
   }
+
+  dynamic "plan" {
+    for_each = var.plan != null ? [1] : []
+
+    content {
+      name      = azurerm_marketplace_agreement.ma.plan
+      publisher = azurerm_marketplace_agreement.ma.publisher
+      product   = azurerm_marketplace_agreement.ma.offer
+    }
+  }
 }
 
 resource "random_integer" "disk-seed" {
@@ -131,7 +149,7 @@ resource "random_integer" "disk-seed" {
   min = 1
   max = 50000
   keepers = {
-    name = each.key
+    name          = each.key
     computer_name = module.names.results.azurerm_linux_virtual_machine
   }
   seed = "${module.names.results.azurerm_linux_virtual_machine}-${each.key}"
