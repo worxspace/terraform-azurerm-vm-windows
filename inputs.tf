@@ -162,6 +162,7 @@ variable "domain-join-info" {
     domain   = string
     ou       = string
   })
+  default = null
 }
 
 variable "plan" {
