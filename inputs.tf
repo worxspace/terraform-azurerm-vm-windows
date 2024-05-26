@@ -71,7 +71,7 @@ variable "data-disks" {
     tier         = optional(string)
     size-gb      = number
   }))
-  default     = null
+  default     = []
   description = "list of data disks to be attached to the virtual machine"
 }
 
@@ -153,6 +153,15 @@ variable "availability_set_id" {
 variable "machine-index" {
   type    = number
   default = null
+}
+
+variable "domain-join-info" {
+  type = object({
+    username = string
+    password = string
+    domain   = string
+    ou       = string
+  })
 }
 
 variable "plan" {
